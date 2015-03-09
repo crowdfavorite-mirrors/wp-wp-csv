@@ -46,8 +46,12 @@ function cpkws_wpcsv_downloadFile( $fullPath, $encoding ){
 				$bom = '';
 		}	
 		
-		if ( PHP_VERSION_ID < 50600 ) {
-			iconv_set_encoding( 'output_encoding', $encoding );
+		if ( function_exists('iconv' ) && PHP_VERSION_ID < 50600 ) {
+			iconv_set_encoding('internal_encoding', $encoding );
+			iconv_set_encoding('input_encoding', $encoding );
+			iconv_set_encoding('output_encoding', $encoding );
+		} elseif ( PHP_VERSION_ID >= 50600 ) {
+			ini_set( 'default_charset', $encoding );
 		}
 
 		// Parse Info / Get Extension
@@ -86,7 +90,7 @@ if ( isset( $_GET['file'] ) ) {
 	$file = strtolower( $file );
 	$path = $csv_path . '/' . $file;
 	$csv_check = substr( $file, -4 ); # Make sure it's a csv file for security
-	if ( file_exists( $path ) && $csv_check == '.csv' ) {
+	if ( file_exists( $path ) && ( $csv_check == '.csv' || $file == 'wpcsv-debug.log' ) ) {
 		ob_end_clean( );
 		cpkws_wpcsv_downloadFile( $path, $enc );
 		die( );

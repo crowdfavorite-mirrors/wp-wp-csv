@@ -43,7 +43,7 @@ foreach ( $post_types as $custom_post_type ) {
 echo "<option value=''>All (No Filtering)</option>";
 foreach ( $post_status_list as $status ) {
 	$selected = ( $status == $post_status ) ? ' selected' : '';
-	if ( !in_array( $status, Array( 'auto-draft', 'inherit', 'trash' ) ) ) { # Exclude these for now
+	if ( !in_array( $status, Array( 'auto-draft', 'inherit' ) ) ) { # Exclude these for now
 		echo "<option value='{$status}'{$selected}>{$status}</option>";
 	}
 }
@@ -61,6 +61,11 @@ if ( current_user_can( 'manage_options' ) ):
 <?php
 endif;
 ?>
+<?php 
+	$debug_checked = ( htmlentities( $debug ) ) ? 'checked ' : '';
+?>
+<tr><th><?php _e( "Debug Active", 'wp-csv' ); ?>:</th><td><input name="debug" type="checkbox" <?php echo $debug_checked; ?>/>
+<blockquote><i><?php _e( "This may cause extra load and create quite a large trace file.  Only turn on if there's a problem. NOTE: Currently only traces export.", 'wp-csv' ); ?></i></blockquote></td></tr>
 </tbody>
 </table>
 <p><input type="submit" value="<?php _e( 'Save and Go To Import/Export', 'wp-csv' ); ?>" /></p>
