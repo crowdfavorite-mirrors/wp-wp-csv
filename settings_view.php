@@ -1,58 +1,28 @@
+<script type="text/javascript">
+jQuery( function( ) {
+	jQuery( '#wpcsv-settings-tabs' ).tabs( );
+});
+</script>
 <form method='post'>
 <input type='hidden' name='action' value='export'/>
+
+<input class='wpcsv-save-all-button upper' type="submit" value="<?php _e( 'Save All Settings', 'wp-csv' ); ?>" />
+<div id='wpcsv-settings-tabs'>
+<ul>
+	<li><a href='#general'>[ General ]</a></li>
+	<li><a href='#filters'>[ Filters ]</a></li>
+</ul>
+<div id='general'>
 <?php if ( isset( $nonce ) ) echo $nonce ?>
-<p><strong><?php _e( 'First Time Users', 'wp-csv' ); ?>:</strong> Read the <a href='http://cpkwebsolutions.com/plugins/wp-csv/quick-start-guide'>Quick Start Guide</a>.</p>
-<p><input type="submit" value="<?php _e( 'Save and Go To Import/Export', 'wp-csv' ); ?>" /></p>
 <strong class='red'><?php echo $error;?></strong>
 <table class='widefat'>
 <thead>
-<tr><th colspan='2'><strong><?php _e( 'Settings', 'wp-csv' ); ?></strong></th></tr>
+<tr><th colspan='2'><strong><?php _e( 'General', 'wp-csv' ); ?></strong></th></tr>
 </thead>
 <tbody>
 <tr><th><?php _e( 'Delimiter', 'wp-csv' ); ?>:</th><td><input name="delimiter" type="text" length="1" value="<?php echo htmlentities($delimiter); ?>"/><span class='description'><strong> <?php _e( "(European users will usually need to change this from ',' to ';')", 'wp-csv' ); ?></strong><span/></td></tr>
 <tr><th><?php _e( 'Enclosure', 'wp-csv' ); ?>:</th><td><input name="enclosure" type="text" length="1" value="<?php echo htmlentities($enclosure); ?>"/><span class='description'></td></tr>
 <tr><th><?php _e( 'Import Date format', 'wp-csv' ); ?>:</th><td><select name="date_format"><option <?php if ($date_format == 'US' ) echo 'selected';?> value="US">US (MM/DD/YYYY)</option><option <?php if ($date_format == 'English' ) echo 'selected';?> value="English">English (DD/MM/YYYY)</option></select><span class='description'><strong> <?php _e( "(Dates are always exported as 'YYYY-MM-DD HH:MM:SS')", 'wp-csv' ); ?></strong><span/></td></tr></td></tr>
-<tr><th><?php _e( 'Encoding', 'wp-csv' ); ?>:</th><td><select name="encoding">
-<option <?php if ($encoding == 'UTF-8' ) echo 'selected';?> value="UTF-8">UTF-8</option>
-<option <?php if ($encoding == 'UTF-8-BOM' ) echo 'selected';?> value="UTF-8-BOM">UTF-8 (with BOM)</option>
-</select></td></tr>
-<?php 
-	$hidden_checked = ( $export_hidden_custom_fields ) ? 'checked ' : '';
-?>
-<tr><th><?php _e( "Export 'Hidden' Custom Fields", 'wp-csv' ); ?>:</th><td><input name="export_hidden_custom_fields" type="checkbox" <?php echo $hidden_checked; ?>/></td></tr>
-<tr><th><?php _e( "Include Fields", 'wp-csv' ); ?>:</th><td><textarea name="include_field_list" cols="70" rows="5" /><?php echo implode( ',', $include_field_list ); ?></textarea>
-<blockquote><i><?php _e( "Control which fields are included in the export file.  You can enter the full field name or a pattern such as '*' (for everything), 'start*' (for fields starting with 'start'), or '*end' (for fields ending with 'end'). Separate field rules with a comma.  NOTE: Some fields are mandatory and will appear no matter what rules you add.  Excluded fields will not appear.", 'wp-csv' ); ?></i></blockquote></td></tr>
-<tr><th><?php _e( "Exclude Fields", 'wp-csv' ); ?>:</th><td><textarea name="exclude_field_list" cols="70" rows="5" /><?php echo implode( ',', $exclude_field_list ); ?></textarea>
-<blockquote><i><?php _e( "Control which fields are excluded from the export file.  You can enter a pattern such as 'start*' (for fields starting with 'start'), or '*end' (for fields ending with 'end'). NOTE: Some fields are mandatory and will appear no matter what you enter.  Excluded fields take precedence over included fields so you can include 'start*' and then exclude 'start_useless_field'. Separate field rules with a comma.", 'wp-csv' ); ?></i></blockquote></td></tr>
-<tr><th><?php _e( 'Post Type Filter', 'wp-csv' ); ?>:</th><td>
-<input type="radio" name="custom_post" value="" checked> <?php _e( 'All (No Filtering)', 'wp-csv' ); ?> <br />
-<?php
-$post_types = get_post_types();
-$exclude_post_types = Array( 'attachment', 'revision', 'nav_menu_item', 'wp-types-group' );
-foreach ( $post_types as $custom_post_type ) {
-	if ( !in_array( $custom_post_type, $exclude_post_types ) ) {
-		$label = get_post_type_object( $custom_post_type )->labels->name;
-		$checked = ( $post_type == $custom_post_type ) ? ' checked' : NULL;
-		echo "<input type='radio' name='custom_post' value='{$custom_post_type}'{$checked}> {$label}<br />";
-	}
-}
-?></td></tr>
-<tr><th><?php _e( 'Post Status Filter', 'wp-csv' ); ?>:</th><td>
-<select name="post_status">
-<?php
-echo "<option value=''>All (No Filtering)</option>";
-foreach ( $post_status_list as $status ) {
-	$selected = ( $status == $post_status ) ? ' selected' : '';
-	if ( !in_array( $status, Array( 'auto-draft', 'inherit' ) ) ) { # Exclude these for now
-		echo "<option value='{$status}'{$selected}>{$status}</option>";
-	}
-}
-?></select></td></tr>
-<?php 
-	$include_attachments_checked = ( $include_attachments ) ? 'checked ' : '';
-?>
-<tr><th><?php _e( "Include Attachments", 'wp-csv' ); ?>:</th><td><input name="include_attachments" type="checkbox" <?php echo $include_attachments_checked; ?>/>
-<blockquote><i><?php _e( "Most users should leave this off. It does not allow you to create attachments, but it may be useful in certain circumstances.", 'wp-csv' ); ?></i></blockquote></td></tr>
 <?php
 if ( current_user_can( 'manage_options' ) ):
 ?>
@@ -67,11 +37,43 @@ if ( current_user_can( 'manage_options' ) ):
 endif;
 ?>
 <?php 
+	$shortcode_checked = ( $frontend_shortcode ) ? 'checked ' : '';
+?>
+<tr><th><?php _e( "Shortcode Enabled", 'wp-csv' ); ?>:</th><td><input name="frontend_shortcode" type="checkbox" <?php echo $shortcode_checked; ?>/>
+<blockquote><i><?php _e( "Only turn this on if you want your site visitors to be able to export posts!  To display the export form in a post or page you can use the shortcode '[wpcsv_export_form]'. It will allow any visitor to export to CSV according to whatever settings you've last saved on this screen (except for debug output).  <strong>Please use this feature with caution!</strong>", 'wp-csv' ); ?></i></blockquote></td></tr>
+<?php 
 	$debug_checked = ( $debug ) ? 'checked ' : '';
 ?>
 <tr><th><?php _e( "Debug Active", 'wp-csv' ); ?>:</th><td><input name="debug" type="checkbox" <?php echo $debug_checked; ?>/>
 <blockquote><i><?php _e( "This may cause extra load and create quite a large trace file.  Only turn on if there's a problem. NOTE: Currently only traces export.", 'wp-csv' ); ?></i></blockquote></td></tr>
 </tbody>
 </table>
-<p><input type="submit" value="<?php _e( 'Save and Go To Import/Export', 'wp-csv' ); ?>" /></p>
+</div>
+<div id='filters'>
+<table class='widefat'>
+<thead>
+<tr><th colspan='2'><strong><?php _e( 'Filters', 'wp-csv' ); ?></strong></th></tr>
+</thead>
+<tbody>
+<?php 
+	$hidden_checked = ( $export_hidden_custom_fields ) ? 'checked ' : '';
+?>
+<tr><th><?php _e( "Export 'Hidden' Custom Fields", 'wp-csv' ); ?>:</th><td><input name="export_hidden_custom_fields" type="checkbox" <?php echo $hidden_checked; ?>/></td></tr>
+<tr><th><?php _e( 'Post Type and Status Exclude Filter', 'wp-csv' ); ?>:</th>
+<td>
+<p>Select the post types and post statuses that you want to <strong>EXCLUDE</strong>. Everything else will be exported.</p>
+<?php
+	echo "<p><a href='#' id='wpcsv-type-status-toggle-all-on'>[ Exclude All ]</a> &nbsp;&nbsp; <a href='#' id='wpcsv-type-status-toggle-all-off'>[ Exclude None ]</a></p>";
+	echo $hc->post_type_and_status_filters( $type_status_filters );
+?>
+</td></tr>
+<tr><th><?php _e( "Include Fields", 'wp-csv' ); ?>:</th><td><textarea name="include_field_list" cols="70" rows="5" /><?php echo implode( ',', $include_field_list ); ?></textarea>
+<blockquote><i><?php _e( "Control which fields are included in the export file.  You can enter the full field name or a pattern such as '*' (for everything), 'start*' (for fields starting with 'start'), or '*end' (for fields ending with 'end'). Separate field rules with a comma.  NOTE: Some fields are mandatory and will appear no matter what rules you add.  Excluded fields will not appear.", 'wp-csv' ); ?></i></blockquote></td></tr>
+<tr><th><?php _e( "Exclude Fields", 'wp-csv' ); ?>:</th><td><textarea name="exclude_field_list" cols="70" rows="5" /><?php echo implode( ',', $exclude_field_list ); ?></textarea>
+<blockquote><i><?php _e( "Control which fields are excluded from the export file.  You can enter a pattern such as 'start*' (for fields starting with 'start'), or '*end' (for fields ending with 'end'). NOTE: Some fields are mandatory and will appear no matter what you enter.  Excluded fields take precedence over included fields so you can include 'start*' and then exclude 'start_useless_field'. Separate field rules with a comma.", 'wp-csv' ); ?></i></blockquote></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<input class='wpcsv-save-all-button lower' type="submit" value="<?php _e( 'Save All Settings', 'wp-csv' ); ?>" />
 </form>

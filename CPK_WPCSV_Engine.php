@@ -42,33 +42,34 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 			$this->posts_model->update_settings( $this->settings );
 			$this->export_model->update_settings( $this->settings );
 
-			$this->export_model->empty_table( );
-			$export_file = $this->settings['csv_path'] . '/' . self::EXPORT_FILE_NAME . '.csv';
+			$this->export_model->empty_table( $this->settings['frontend']['export_id'] );
+			$export_file = $this->settings['csv_path'] . '/' . self::EXPORT_FILE_NAME . "-{$this->settings['frontend']['export_id']}.csv";
 			if ( file_exists( $export_file ) ) unlink( $export_file );
 			$post_ids = $this->posts_model->get_post_ids( $this->settings['post_type'], $this->settings['include_attachments'], $this->settings['post_status'] );
 			
 			if ( $post_ids ) {
-				$this->export_model->add_post_ids( $post_ids );
+				$this->export_model->add_post_ids( $post_ids, $this->settings['frontend']['export_id'] );
 			}
 		}
 
-		public function get_total( ) {
-			$count = $this->export_model->get_count( );
+		public function get_total( $export_id ) {
+			$count = $this->export_model->get_count( $export_id );
 			$this->trace( 'Get Total', $count );
 			return $count;
 		}
 
-		public function export( $include_headings = TRUE ) {
+		public function export( $include_headings = TRUE, $export_id ) {
 			
 			$start_time = time( );
 
 			$this->trace( 'Settings', $this->settings );
 
-			$post_ids = $this->export_model->get_post_id_list( $this->settings['limit'] );
+			$post_ids = $this->export_model->get_post_id_list( $this->settings['limit'], $export_id );
 
 			$this->trace( 'Post Id Count', count( $post_ids ) );
 			
 			$post_array = Array( );
+			$post_ids_actual = Array( );
 
 			if ( is_array( $post_ids ) && !empty( $post_ids ) ) {
 				foreach( $post_ids as $post_id ) {
@@ -89,7 +90,7 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 
 			if ( !$include_headings ) unset( $post_array[0] );
 
-			$result = $this->save_export( $post_array );
+			$result = $this->save_export( $post_array, $export_id );
 
 			$this->export_model->mark_done( $post_ids_actual );
 
@@ -163,10 +164,10 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 			return $val;
 		}
 
-		public function save_export( Array $posts ) {
+		public function save_export( Array $posts, $export_id ) {
 			if ( !empty( $posts ) ) {
-				if ( $posts[0][0] == 'ID' ) $posts[0][0] = 'id';
-				$this->csv->save( $posts, self::EXPORT_FILE_NAME, $this->settings['csv_path'] );
+				if ( isset( $posts[0][0] ) && $posts[0][0] == 'ID' ) $posts[0][0] = 'id';
+				$this->csv->save( $posts, self::EXPORT_FILE_NAME . '-' . $export_id, $this->settings['csv_path'] );
 			}
 			return count( $posts );
 		}
@@ -276,7 +277,7 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 
 				# Custom fields	
 				foreach( $cf as $key => $val ) {
-					if ( !empty( $val ) ) { 
+					if ( !is_null( $val ) || $val != '' ) { 
 						if ( function_exists( 'json_decode' ) && json_decode( utf8_encode( $val ) ) ) {
 							$val = json_decode( $val, TRUE );
 						}
@@ -337,7 +338,7 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 			} else {
 				$pid = ( $p['ID'] < 0 ) ? $p['ID']*-1 : $p['ID'];
 				$post_val = get_post($pid);
-				$post_exists = ( !empty( $post_val ) ) ? TRUE : FALSE;
+				$post_exists = ( !empty( $post_val ) );
 
 				// MODIFY
 				if ( $post_exists ) {
@@ -360,7 +361,7 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 						}
 
 						foreach( $cf as $key => $val ) {
-							if ( !empty( $val ) ) {
+							if ( !is_null( $val ) || $val != '' ) {
 								if ( function_exists( 'json_decode' ) && json_decode( utf8_encode( $val ) ) ) {
 									$val = json_decode( $val, TRUE );
 								}

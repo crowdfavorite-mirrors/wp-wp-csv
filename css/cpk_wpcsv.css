@@ -1,12 +1,14 @@
 div#wpcsv table th {
 	width: 17em;
 	vertical-align: top;
+	font-weight: bold;
 }
 
 div#wpcsv div#cpk_wpcsv_left {
 	width: 70%;
 	float: left;
 	display: inline-block;
+	position: relative;
 }
 
 div#wpcsv div#cpk_wpcsv_sidebar {
@@ -140,4 +142,63 @@ div#wpcsv blockquote {
 
 div#wpcsv h3 {
 	margin-top: 0;
+}
+
+input.wpcsv-save-all-button {
+	position: absolute;
+	right: 0;
+}
+
+input.wpcsv-save-all-button.upper {
+	top: 5px; 
+}
+
+/* Tabs */
+
+div#wpcsv-settings-tabs ul li {
+	display: inline;
+	margin-right: 1em;
+}
+
+div#wpcsv-settings-tabs ul li a {
+	text-decoration: none;
+}
+
+/* Filters */
+
+div#wpcsv-settings-tabs fieldset legend {
+  padding: 0 0.5em;
+}
+
+div#wpcsv-settings-tabs fieldset {
+	border: 1px solid #CCC;
+	border-radius: 4px;
+	padding: 1em 1em;
+	margin-bottom: 1em;
+	width: auto;
+	display: inline-block;
+	clear: both;
+}
+
+div#wpcsv-settings-tabs fieldset div.status {
+	width: 100px;
+	padding: 0 1em;
+}
+
+/* Frontend Shortcode */
+
+fieldset#wpcsv-frontend-download {
+	border: 2px solid #999;
+	border-radius: 4px;
+	padding: 1em;
+}
+
+fieldset#wpcsv-frontend-download legend {
+	padding: 0 0.5em;
+}
+
+input.wpcsv-date {
+	width: 7em;
+	font-size: 10px;
+	padding: 0.5em;
 }

@@ -3,8 +3,8 @@ Contributors: cpkwebsolutions
 Donate link: http://cpkwebsolutions.com/donate
 Tags: wp, csv, import, export, excel, taxonomy, tag, category, bulk, easy, all, importer, exporter, posts, pages, tags, custom, images
 Requires at least: 3.5
-Tested up to: 4.2.2
-Stable tag: 1.7.6
+Tested up to: 4.3
+Stable tag: 1.7.8
 
 A powerful, yet simple, CSV importer and exporter for Wordpress posts, pages, and custom post types. 
 
@@ -20,6 +20,7 @@ Most WP features are fully supported:
 * Flexible filter system to easily control which fields export
 * Simple User Interface (if you know Excel or another spreadsheet program, you will find this plugin quite easy)
 The plugin should now be usable with most plugins that are fully Wordpress compliant.
+* Shortcode to allow frontend download by your visitors if you choose
 
 Learn more <a href='http://cpkwebsolutions.com/wp-csv'>here</a> and read the full documentation including a <a href='http://cpkwebsolutions.com/plugins/wp-csv/quick-start-guide/'>quick start guide</a> and a description of all the kinds of fields you'll see.
 
@@ -42,6 +43,17 @@ Refer to the <a href='http://cpkwebsolutions.com/wp-csv/quick-start-guide'>Quick
 No screenshots available.
 
 == Changelog ==
+= 1.7.8 =
+* Adding tabbing and split the settings screen into two tabs
+* Improved the type and status filtering to give users full control over what is exported
+= 1.7.7 =
+* Shortcode added to optionally allow download by visitors, with date range selection on modified field.
+* Fixed bug causing incorrect interpretation of '0' in custom fields.
+* Improved code that tests for the new field naming convention.
+* Moved menus and reworked all screens
+* Added file cleanup function (remove files after 1 day)
+* Added export id to files and throughout code to handle concurrency
+* Replaced download code with new class
 = 1.7.6 =
 * Post type filtering bug fixed.
 = 1.7.5 =
@@ -168,12 +180,14 @@ No screenshots available.
 
 == Upgrade Notice ==
 
-= 1.7.6 =
-* Post type filtering bug fixed.
-= 1.7.5 =
-* Fixed mark_done bug.
-* Added option to export/import attachment post types
-* Added check to make sure the uploaded file is smaller than post_max and upload_max PHP ini settings
-* Added modified_date and post_mime_type to exported field list
-* Fixed a small bug with future posts incorrectly being marked as 'Missed Schedule'
-* Improved AJAX error reporting
+= 1.7.8 =
+* Adding tabbing and split the settings screen into two tabs
+* Improved the type and status filtering to give users full control over what is exported
+= 1.7.7 =
+* Shortcode added to optionally allow download by visitors, with date range selection on modified field.
+* Fixed bug causing incorrect interpretation of '0' in custom fields.
+* Improved code that tests for the new field naming convention.
+* Moved menus and reworked all screens
+* Added file cleanup function (remove files after 1 day)
+* Added export id to files and throughout code to handle concurrency
+* Replaced download code with new class

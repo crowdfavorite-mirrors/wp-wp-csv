@@ -23,6 +23,8 @@ class CPK_WPCSV_CSV {
 
 	public function save( $csv_data = Array( ), $filename = 'csvdata', $path = '/tmp' ) {
 
+		error_log( $filename );
+
 		if ( empty( $csv_data ) ) return FALSE;
 
 		$file_path = $path . '/' . $filename . '.csv';

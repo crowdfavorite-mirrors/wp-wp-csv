@@ -28,10 +28,14 @@ class CPK_WPCSV_Export_Queue_Model {
 		return (boolean)$this->db->get_results( $sql );
 	}
 
-	private function create_table( $name ) {
+	public function create_table( $name = NULL ) {
+
+		if ( !isset( $name ) ) $name = $this->table_name;
+
 		$sql =	"
 			CREATE TABLE IF NOT EXISTS `{$name}` (
 			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+			`export_id` varchar(30) NOT NULL,
 			`post_id` int(11) NOT NULL,
 			`done` boolean NOT NULL DEFAULT 0,
 			`msg` varchar(255) NULL,
@@ -42,8 +46,12 @@ class CPK_WPCSV_Export_Queue_Model {
 		$this->db->query( $sql );
 	}
 
-	public function empty_table( ) {
-		$sql =	"TRUNCATE TABLE `{$this->table_name}`";
+	public function empty_table( $export_id = NULL ) {
+		if ( empty( $export_id ) ) {
+			$sql = "TRUNCATE TABLE `{$this->table_name}`";
+		} else {
+			$sql = "DELETE FROM `{$this->table_name}` WHERE export_id = '{$export_id}'";
+		}
 		$this->db->query( $sql );
 	}	
 	
@@ -52,26 +60,26 @@ class CPK_WPCSV_Export_Queue_Model {
 		$this->db->query( $sql );
 	}
 
-	private function wrap_post_ids( &$element ) {
-		$element = "('{$element}')";
+	private function wrap_post_ids( &$element, $key, $export_id = NULL ) {
+		$element = "('{$element}', '{$export_id}' )";
 	}
 
-	public function add_post_ids( Array $post_ids ) {
+	public function add_post_ids( Array $post_ids, $export_id ) {
 		if ( is_array( $post_ids ) && !empty( $post_ids ) ) {
-			array_walk( $post_ids, Array( $this, 'wrap_post_ids' ) );
+			array_walk( $post_ids, Array( $this, 'wrap_post_ids' ), $export_id );
 			$post_id_sql = implode( ',', $post_ids );
-			$sql = "INSERT INTO {$this->table_name} ( `post_id` ) VALUES {$post_id_sql}";
+			$sql = "INSERT INTO {$this->table_name} ( `post_id`, `export_id` ) VALUES {$post_id_sql}";
 			$this->db->query( $sql );
 		}
 	}
 
-	public function get_post_id_list( $limit = 100 ) {
-		$sql =	"SELECT post_id FROM {$this->table_name} WHERE done = '0' LIMIT {$limit}";
+	public function get_post_id_list( $limit = 100, $export_id ) {
+		$sql =	"SELECT post_id FROM {$this->table_name} WHERE done = '0' AND export_id = '{$export_id}' LIMIT {$limit}";
 		return $this->db->get_col( $sql );
 	}
 
-	public function get_count( ) {
-		$sql =	"SELECT COUNT(*) FROM {$this->table_name}";
+	public function get_count( $export_id ) {
+		$sql =	"SELECT COUNT(*) FROM `{$this->table_name}` WHERE export_id = '{$export_id}'";
 		return $this->db->get_var( $sql );
 	}
 

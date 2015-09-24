@@ -31,30 +31,35 @@ class CPK_WPCSV_Posts_Model {
 		}
 	}
 
-	private function build_query( $fields, $post_id_list = NULL ) {
+	public function build_query( $fields, $post_id_list = NULL ) {
 
-		$post_types_filter = '';
-		$post_types = $this->get_post_types_list( );
-		if ( $post_types ) {
-			$post_types_list = implode( ',', $post_types );
-			$post_types_filter = "AND post_type IN ( {$post_types_list} )";
-		}
-		
-		$post_status_filter = '';
-		$post_statuses = $this->get_post_status_list( );
-		if ( $post_statuses ) {
-			$post_status_list = implode( ',', $post_statuses );
-			$post_status_filter = "AND post_status IN ( {$post_status_list} )";
-		}
-		
-		$excluded_post_types_filter = "AND post_type NOT IN ( 'revision', 'nav_menu_item', 'wp-types-group' )";
+		$post_status_type_filter = $this->get_post_type_status_filter( );
 
 		$post_id_filter = ( isset( $post_id_list ) ) ? "AND ID IN ( " . implode( ',', $post_id_list ) . " )" : '';
-		$sql = "SELECT DISTINCT {$fields} FROM {$this->db->posts} WHERE 1 = 1 {$post_status_filter} {$post_types_filter} {$excluded_post_types_filter} {$post_id_filter} ORDER BY post_modified DESC";
+
+		$post_date_filter = $this->get_date_conditions( );
+
+		$sql = "SELECT DISTINCT {$fields} FROM {$this->db->posts} WHERE 1 = 1 {$post_status_type_filter} {$post_id_filter} {$post_date_filter} ORDER BY post_modified DESC";
 
 		$this->trace( 'Post Query', $sql );
 
 		return $sql;
+	}
+
+	private function get_post_type_status_filter( ) {
+
+		$excludes = $this->settings['post_type_status_exclude_filter'];
+		
+		$statements = Array( );
+
+		if ( is_array( $excludes ) && !empty( $excludes ) ) {
+			foreach( $excludes as $type => $statuses ) {
+				$status_list = "'" . implode( "','", array_keys( $statuses ) ) . "'";
+				$statements[] = "( `post_type` != '{$type}' OR `post_status` NOT IN ( {$status_list} ) )";
+			} # End foreach
+		} # End if	
+
+		return ( $statements ) ? ' AND ' . implode( ' AND ', $statements ) : '';
 	}
 
 	private function get_post_types_list( ) {
@@ -70,26 +75,72 @@ class CPK_WPCSV_Posts_Model {
 		return $post_types;
 	}
 
+	public function get_post_type_status_combos( $settings = Array( ), $default = FALSE ) {
+
+		$sql = "SELECT DISTINCT post_type FROM {$this->db->posts}";
+
+		$types = $this->db->get_col( $sql );
+
+		$statuses = $this->get_post_status_list( );
+		
+		if ( is_array( $types ) && !empty( $types ) ) {
+			foreach( $types as $type ) {
+				$type_statuses[ $type ] = array_combine( $statuses, array_fill( 0, count( $statuses ), $default ) );
+			} # End foreach
+		} # End if
+		
+		if ( is_array( $settings ) && !empty( $settings ) ) {
+			foreach( $settings as $post_type => $post_statuses ) {
+				if ( is_array( $post_statuses ) && !empty( $post_statuses ) ) {
+					foreach( $post_statuses as $post_status => $enabled ) {
+						$type_statuses[ $post_type ][ $post_status ] = $enabled;	
+					} # End foreach
+				} # End if
+			} # End foreach
+		} # End if
+
+		return $type_statuses;
+
+	}
+
+	private function get_date_conditions( ) {
+		if ( !isset( $this->settings['frontend']['start_date'] ) && !isset( $this->settings['frontend']['end_date'] ) ) return '';
+		if ( !empty( $this->settings['frontend']['start_date'] ) && empty( $this->settings['frontend']['end_date'] ) ) {
+			return " AND post_modified >= DATE( '{$this->settings['frontend']['start_date']}' )";
+		}
+		if ( empty( $this->settings['frontend']['start_date'] ) && !empty( $this->settings['frontend']['end_date'] ) ) {
+			return " AND post_modified <= DATE( '{$this->settings['frontend']['end_date']}' )";
+		}
+		if ( !empty( $this->settings['frontend']['start_date'] ) && !empty( $this->settings['frontend']['end_date'] ) ) {
+			return " AND post_modified >= DATE( '{$this->settings['frontend']['start_date']}' ) AND post_modified <= DATE( '{$this->settings['frontend']['end_date']}' )";
+		}
+
+	}
+
 	private function get_post_status_list( ) {
 		
-		$post_statuses = Array( 
-			"'publish'",
-			"'future'",
-			"'private'",
-			"'draft'",
-			"'pending'",
-			"'trash'"
+		$sql = "SELECT DISTINCT post_status FROM {$this->db->posts}";
+
+		$statuses = $this->db->get_col( $sql );
+
+		$defaults = Array(
+			'draft',
+			'future',
+			'inherit',
+			'pending',
+			'publish',
+			'private',
+			'trash'
 		);
 
-		if ( !empty( $this->settings['post_status'] ) ) {
-			$post_statuses = Array( "'{$this->settings['post_status']}'" );
-		}
-		
-		if ( $this->settings['include_attachments'] ) {
-			$post_statuses[] = "'inherit'";
-		}
+		$merged = array_merge( $statuses, $defaults );
 
-		return $post_statuses;
+		$merged = array_unique( $merged );
+
+		sort( $merged );
+
+		return $merged;
+
 	}
 
 	public function get_post_ids( ) {

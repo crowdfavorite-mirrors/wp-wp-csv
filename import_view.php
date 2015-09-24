@@ -35,7 +35,7 @@ jQuery( function( ) {
 				} else {
 					jQuery( '#progressbar' ).progressbar( "value", percentage );
 					jQuery( '#percent' ).text( '(' + percentage + '%)' );
-					location.search = '?page=wp-csv.php&action=report';
+					location.search = '?page=wpcsv-report';
 				}
 			},
 			error: function( data, textStatus, error ) {
@@ -86,8 +86,29 @@ jQuery( function( ) {
 });
 
 </script>
-<?php if ( $error ): ?>
-<strong class='red'><?php echo $error;?></strong>
+
+<?php
+	if ( $error ) {
+		echo "<p><strong class='red'>{$error}</strong></p>";
+	}
+?>
+<?php if ( empty( $file_name ) || !empty( $error ) ): ?>
+<table class='widefat'>
+<thead>
+<tr><th colspan='2'><strong><?php _e( 'Upload CSV File For Import', 'wp-csv' ); ?></strong></th></tr>
+</thead>
+<tbody>
+<tr><th><?php _e( 'Select CSV File', 'wp-csv' ); ?></th><td>
+<form enctype="multipart/form-data" action="" method="POST">
+<?php if ( isset( $nonce ) ) echo $nonce ?>
+<input type="hidden" name="action" value="import" />
+<input name="uploadedfile" type="file" />
+</fieldset>
+</tbody>
+</table>
+<br />
+<input type='submit' value='Upload'/>
+</form>
 <?php else: ?>
 <table class='widefat'>
 <thead>
