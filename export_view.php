@@ -127,4 +127,3 @@ Debug Active: <a href='<?php echo $debug_link; ?>'><?php _e( 'Download Debug Fil
 <input type='button' id='start_export' value='Export' />
 </div>
 </div>
-<div>

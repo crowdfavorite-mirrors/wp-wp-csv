@@ -33,7 +33,8 @@ class CPK_WPCSV_CSV {
 
 		$file = fopen( $file_path, 'ab' );
 		foreach( $csv_data as $csv_row ) {
-			$write_successful = fputcsv( $file, $csv_row, $this->delimiter, $this->enclosure );
+			$clean_csv_row = $this->remove_vulnerability( $csv_row );
+			$write_successful = fputcsv( $file, $clean_csv_row, $this->delimiter, $this->enclosure );
 			if ( !$write_successful ) {
 				$this->errors[] = $error_message;
 				break;
@@ -42,6 +43,19 @@ class CPK_WPCSV_CSV {
 		fclose( $file );
 			
 		return FALSE;
+	}
+
+	private function remove_vulnerability( $row ) {
+		
+		if ( is_array( $row ) && !empty( $row ) ) {
+			foreach( $row as &$field ) {
+				if ( in_array( substr( $field, 0, 1 ), Array( '-', '+', '=' ) ) ) {
+					$field = "'" . $field;
+				}
+			} # End foreach
+		} # End if
+
+		return $row;
 	}
 
 	public function line_count( $file_path, $offset = -1 ) {

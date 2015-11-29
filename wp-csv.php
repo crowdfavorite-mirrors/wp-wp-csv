@@ -3,7 +3,7 @@
 Plugin Name: WP CSV
 Plugin URI: http://cpkwebsolutions.com/plugins/wp-csv
 Description: A powerful, yet easy to use, CSV Importer/Exporter for Wordpress posts and pages. 
-Version: 1.7.8
+Version: 1.8.0.0
 Author: CPK Web Solutions
 Author URI: http://cpkwebsolutions.com
 Text Domain: wp-csv
@@ -108,7 +108,7 @@ if ( !class_exists( 'CPK_WPCSV' ) ) {
 
 			$old_version = $this->settings['version'];
 
-			$this->settings['version'] = '178';
+			$this->settings['version'] = '1801';
 
 			if ( $old_version != $this->settings['version'] ) {
 				$this->upgrade_db_tables( );
@@ -206,22 +206,29 @@ if ( !class_exists( 'CPK_WPCSV' ) ) {
 		}
 
 		public function load_assets( ) {
-			# JS
+
+			$this->load_css( );
+			$this->load_js( );
+		}
+
+		private function load_js( ) {
+			
 			if ( $this->settings['frontend_shortcode'] && !is_admin( ) ) {
 				wp_enqueue_script( 'jquery-ui-datepicker' );
 			}
-			
-			wp_enqueue_script( 'jquery-ui-tabs' );
-			wp_enqueue_script( 'jquery-ui-datepicker' );
 
-			wp_enqueue_script( 'wpcsv-scripts', plugins_url( '/js/wpcsv.js', __FILE__ ), Array( ), $this->settings['version'], TRUE );
+			if ( is_admin( ) ) {
+				wp_enqueue_script( 'jquery-ui-tabs' );
+				wp_enqueue_script( 'wpcsv-scripts', plugins_url( '/js/wpcsv.js', __FILE__ ), Array( ), $this->settings['version'], TRUE );
+			}
+		}
 
-			# CSS
-			wp_register_style( 'cpk_wpcsv_styles', plugins_url( '/css/cpk_wpcsv.css', __FILE__ ) );
-			wp_enqueue_style( 'cpk_wpcsv_styles' );
-		#	wp_register_style( 'jquery-ui-style', "//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" );
-		#	wp_enqueue_style( 'jquery-ui-style' );
+		private function load_css( ) {
 
+			if ( is_admin( ) || $this->settings['frontend_shortcode'] ) {
+				wp_register_style( 'cpk_wpcsv_styles', plugins_url( '/css/cpk_wpcsv.css', __FILE__ ) );
+				wp_enqueue_style( 'cpk_wpcsv_styles' );
+			}
 		}
 
 		public function admin_menus( ) {
@@ -341,6 +348,8 @@ if ( !class_exists( 'CPK_WPCSV' ) ) {
 
 				if ( isset( $_POST['type_status_exclude'] ) ) {
 					$this->settings['post_type_status_exclude_filter'] = $_POST['type_status_exclude'];
+				} else {
+					$this->settings['post_type_status_exclude_filter'] = Array( );
 				}
 
 				if ( isset( $_POST['imagefolder'] ) ) {

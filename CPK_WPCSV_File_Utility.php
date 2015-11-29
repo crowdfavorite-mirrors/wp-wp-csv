@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists( 'File_Utility' ) ) {
+if ( !class_exists( 'CPK_WPCSV_File_Utility' ) ) {
 
 class CPK_WPCSV_File_Utility {
 
@@ -40,7 +40,7 @@ class CPK_WPCSV_File_Utility {
 		header( 'Content-Disposition: attachment; filename="' . $destination_file_name . '"' );
 		header( 'Cache-Control: no-store, no-cache' );	
 
-		if ( ob_get_contents( ) ) { # Make sure no junk is included in the file
+		if ( ob_get_contents( ) ) { # Make __absolutely__ :) sure no junk is included in the file
 			ob_end_flush( );
 			flush( );
 		}
@@ -55,7 +55,7 @@ class CPK_WPCSV_File_Utility {
 			if ( function_exists( 'mime_content_type' ) ) {
 				return mime_content_type( $this->full_path );
 			} else {
-				return 'text/csv'; # Give up trying to do it the 'right' way.
+				return 'text/csv'; # Give up and try a good default.
 			}
 		} else {
 			$finfo = finfo_open( FILEINFO_MIME_TYPE );

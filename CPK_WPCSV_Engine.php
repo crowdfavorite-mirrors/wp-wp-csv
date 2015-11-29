@@ -45,7 +45,7 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 			$this->export_model->empty_table( $this->settings['frontend']['export_id'] );
 			$export_file = $this->settings['csv_path'] . '/' . self::EXPORT_FILE_NAME . "-{$this->settings['frontend']['export_id']}.csv";
 			if ( file_exists( $export_file ) ) unlink( $export_file );
-			$post_ids = $this->posts_model->get_post_ids( $this->settings['post_type'], $this->settings['include_attachments'], $this->settings['post_status'] );
+			$post_ids = $this->posts_model->get_post_ids( );
 			
 			if ( $post_ids ) {
 				$this->export_model->add_post_ids( $post_ids, $this->settings['frontend']['export_id'] );
@@ -186,6 +186,11 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 			return $count;
 		}
 
+		private function is_valid_json( $string ) {
+			if ( !is_string( $string ) || !function_exists( 'json_decode' ) ) return FALSE;
+			return is_object( json_decode( $string ) );
+		}
+
 		public function import_post( $post, $perm_delete ) { 
 
 			$p = Array( );
@@ -277,11 +282,11 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 
 				# Custom fields	
 				foreach( $cf as $key => $val ) {
-					if ( !is_null( $val ) || $val != '' ) { 
-						if ( function_exists( 'json_decode' ) && json_decode( utf8_encode( $val ) ) ) {
+					if ( !is_null( $val ) && $val != '' ) { 
+						if ( $this->is_valid_json( $val ) ) {
 							$val = json_decode( $val, TRUE );
 						}
-						add_post_meta( $id, $key, $val, true );
+						add_post_meta( $id, $key, $val, TRUE );
 					}
 				}
 
@@ -361,8 +366,8 @@ if ( !class_exists( 'CPK_WPCSV_Engine' ) ) {
 						}
 
 						foreach( $cf as $key => $val ) {
-							if ( !is_null( $val ) || $val != '' ) {
-								if ( function_exists( 'json_decode' ) && json_decode( utf8_encode( $val ) ) ) {
+							if ( !is_null( $val ) && $val != '' ) {
+								if ( $this->is_valid_json( $val ) ) {
 									$val = json_decode( $val, TRUE );
 								}
 								update_post_meta( $p['ID'], $key, $val );

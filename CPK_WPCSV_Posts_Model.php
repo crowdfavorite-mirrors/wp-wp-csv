@@ -62,19 +62,6 @@ class CPK_WPCSV_Posts_Model {
 		return ( $statements ) ? ' AND ' . implode( ' AND ', $statements ) : '';
 	}
 
-	private function get_post_types_list( ) {
-		
-		$post_types = Array( );
-		if ( !empty( $this->settings['post_type'] ) ) {
-			$post_types[] = "'{$this->settings['post_type']}'";
-			if ( $this->settings['include_attachments'] ) {
-				$post_types[] = "'attachment'";
-			}
-		}
-
-		return $post_types;
-	}
-
 	public function get_post_type_status_combos( $settings = Array( ), $default = FALSE ) {
 
 		$sql = "SELECT DISTINCT post_type FROM {$this->db->posts}";
